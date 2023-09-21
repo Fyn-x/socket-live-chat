@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('admin-to-client', (data) => {
-    socket.to(users[data.client_id]).emit('server-to-client', data.pesan)
+    socket.to(users[data.client_id]).emit('server-to-client', data)
   });
 });
 
