@@ -11,7 +11,7 @@ const users = {};
 io.on('connection', (socket) => {
   socket.on('client-join', ({ id }) => {
     users[id] = socket.id;
-    console.log('masuk')
+    id == 'admin' ? socket.broadcast.emit('admin-online') : '';
     console.log(users)
   });
 
@@ -19,6 +19,7 @@ io.on('connection', (socket) => {
     console.log('Got disconnect!');
     for (const key in users) {
       if (users[key] === socket.id) {
+        key == 'admin' ? socket.broadcast.emit('admin-offline') : '';
         delete users[key];
         break;
       }
@@ -34,7 +35,19 @@ io.on('connection', (socket) => {
   });
 
   socket.on('admin-to-client', (data) => {
-    socket.to(users[data.client_id]).emit('server-to-client', data)
+    socket.to(users[data.client_id]).emit('admin-to-client', data)
+  });
+
+  socket.on('admin-typing', (data) => {
+    socket.to(users[data.id]).emit('admin-typing', data)
+  });
+
+  socket.on('admin-untyping', (data) => {
+    socket.to(users[data.id]).emit('admin-untyping', data)
+  });
+
+  socket.on('client-typing', (data) => {
+    socket.to(users['admin']).emit('client-typing', data)
   });
 });
 
