@@ -15,6 +15,17 @@ io.on('connection', (socket) => {
     console.log(users)
   });
 
+  socket.on('cek-admin-status', () => {
+    var adminStatus;
+    if ('admin' in users) {
+      adminStatus = 'online';
+    } else {
+      adminStatus = 'offline';
+    }
+
+    socket.emit('admin-status', adminStatus)
+  })
+
   socket.on('disconnect', function() {
     console.log('Got disconnect!');
     for (const key in users) {
