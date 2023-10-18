@@ -11,9 +11,14 @@ const users = {};
 io.on('connection', (socket) => {
   socket.on('client-join', ({ id }) => {
     users[id] = socket.id;
-    id == 'admin' ? socket.broadcast.emit('admin-online') : '';
+    adminStatus = 'admin' in users ? 'online' : 'offline';
+    io.sockets.emit('admin-status', adminStatus);
     console.log(users)
   });
+
+  socket.on('client-enter', (data)=>{
+    io.sockets.to(users['admin']).emit('client-enter', data)
+  })
 
   socket.on('cek-admin-status', () => {
     var adminStatus;
@@ -30,7 +35,7 @@ io.on('connection', (socket) => {
     console.log('Got disconnect!');
     for (const key in users) {
       if (users[key] === socket.id) {
-        key == 'admin' ? socket.broadcast.emit('admin-offline') : '';
+        key == 'admin' ? io.sockets.emit('admin-status', 'offline') : '';
         delete users[key];
         break;
       }
@@ -59,6 +64,10 @@ io.on('connection', (socket) => {
 
   socket.on('client-typing', (data) => {
     socket.to(users['admin']).emit('client-typing', data)
+  });
+
+  socket.on('client-untyping', (data) => {
+    socket.to(users['admin']).emit('client-untyping', data)
   });
 });
 
